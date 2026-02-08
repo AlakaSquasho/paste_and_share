@@ -1,51 +1,53 @@
-# Local Share
+# Paste and Share
 
-A simple and efficient web-based tool for sharing text and files across devices in a local network.
+一个简单高效的基于 Web 的工具，用于在局域网内的设备之间共享文本和文件。
 
-## Features
+[English README](./README_en.md)
 
-- **Shared Clipboard**: Instantly share text between your phone, tablet, and computer.
-- **File Sharing**: Upload and download files with ease.
-- **Dark Mode**: Supports Light, Dark, and System-based theme switching.
-- **Docker Support**: Ready for deployment using Docker Compose.
+## 功能特性
 
-## Getting Started
+- **共享剪贴板**：在手机、平板和电脑之间即时共享文本。
+- **文件共享**：轻松上传和下载文件。
+- **深色模式**：支持浅色、深色和基于系统设置的主题切换。
+- **Docker 支持**：支持使用 Docker Compose 快速部署。
 
-### Prerequisites
+## 快速开始
 
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+### 前提条件
 
-### Installation & Run
+- [Docker](https://www.docker.com/) 和 [Docker Compose](https://docs.docker.com/compose/)
 
-1. Clone the repository:
+### 安装与运行
+
+1. 克隆仓库：
    ```bash
-   git clone https://github.com/as/paste_and_share.git
-   cd local-share
+   git clone https://github.com/AlakaSquasho/paste_and_share.git
+   cd paste_and_share
    ```
 
-2. Start the application:
+2. 启动应用：
    ```bash
    docker-compose up -d --build
    ```
 
-3. Access the application:
-   - Frontend: [http://localhost:8080](http://localhost:8080)
-   - Backend API: [http://localhost:3000](http://localhost:3000)
+3. 访问应用：
+   - 前端界面：[http://localhost:8080](http://localhost:8080)
+   - 后端 API：[http://localhost:3000](http://localhost:3000)
 
-## Configuration
+## 配置说明
 
-You can customize the following environment variables in `docker-compose.yml`:
+您可以在 `docker-compose.yml` 中自定义以下环境变量：
 
-- `APP_PASSWORD`: The password required to access the dashboard (Default: `admin123`).
-- `JWT_SECRET`: Secret key for authentication tokens.
+- `APP_PASSWORD`：访问控制台所需的密码（默认：`admin123`）。
+- `JWT_SECRET`：用于身份验证 Token 的密钥。
 
-## Tech Stack
+## 技术栈
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Vite.
-- **Backend**: Node.js, Express, Prisma.
-- **Database**: SQLite.
-- **Deployment**: Nginx, Docker.
+- **前端**：React, TypeScript, Tailwind CSS, Vite.
+- **后端**：Node.js, Express, Prisma.
+- **数据库**：SQLite.
+- **部署**：Nginx, Docker.
 
-## License
+## 开源协议
 
-This project is licensed under the MIT License.
+本项目采用 MIT 协议。
