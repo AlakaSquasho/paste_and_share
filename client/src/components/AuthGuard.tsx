@@ -1,7 +1,6 @@
 // client/src/components/AuthGuard.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
 
 interface AuthGuardProps {
   children: React.ReactNode;

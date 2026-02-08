@@ -14,6 +14,9 @@ import filesRoutes from './routes/files';
 
 const app = express();
 
+// Trust the first proxy (e.g. Nginx) to get the real client IP for rate limiting
+app.set('trust proxy', 1);
+
 // Global Rate Limiter: 100 requests per 15 minutes
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
