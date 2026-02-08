@@ -1,0 +1,25 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Clipboard {
+  id        String   @id @default(cuid())
+  content   String   // The text content
+  createdAt DateTime @default(now())
+}
+
+model FileMetadata {
+  id          String   @id @default(cuid())
+  originalName String
+  filename    String   // Generated unique name on disk
+  mimetype    String
+  size        Int
+  createdAt   DateTime @default(now())
+}
