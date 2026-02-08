@@ -34,12 +34,29 @@
    - 前端界面：[http://localhost:8080](http://localhost:8080)
    - 后端 API：[http://localhost:3000](http://localhost:3000)
 
+## 安全特性
+
+为保障公网部署的安全性，本项目已集成以下防护措施：
+
+- **频率限制 (Rate Limiting)**：针对登录接口及全局 API 进行了频率限制，防止暴力破解。
+- **防爆破延迟**：登录验证引入了人为延迟，增加攻击者时间成本。
+- **Bcrypt 支持**：支持在环境变量中使用 Bcrypt 哈希值作为密码。
+- **访问审计日志**：自动记录所有访问者的 IP、请求路径及状态，日志存储在服务器本地（`server/logs/access.log`）。
+
 ## 配置说明
 
 您可以在 `docker-compose.yml` 中自定义以下环境变量：
 
-- `APP_PASSWORD`：访问控制台所需的密码（默认：`admin123`）。
-- `JWT_SECRET`：用于身份验证 Token 的密钥。
+- `SHARED_PASSWORD`：访问所需的密码。支持明文或 Bcrypt 哈希值（推荐）。
+- `JWT_SECRET`：用于身份验证 Token 的密钥。请务必修改。
+
+### 生成安全密码哈希
+
+建议使用哈希值而非明文：
+```bash
+node -e "console.log(require('bcryptjs').hashSync('你的密码', 10))"
+```
+将生成的 `$2a$...` 字符串填入 `SHARED_PASSWORD`。
 
 ## 技术栈
 

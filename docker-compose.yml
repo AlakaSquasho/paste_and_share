@@ -10,7 +10,7 @@ services:
       - PORT=3000
       - DATABASE_URL=file:./data/prod.db
       - JWT_SECRET=${JWT_SECRET:-your_secret_key_here}
-      - APP_PASSWORD=${APP_PASSWORD:-admin123}
+      - SHARED_PASSWORD=${SHARED_PASSWORD:-123456}
 
   client:
     build: ./client

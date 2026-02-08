@@ -7,5 +7,6 @@ client/node_modules/
 server/dist/
 server/node_modules/
 server/uploads/
+server/logs/
 server/prisma/data/
 .DS_Store

@@ -34,12 +34,29 @@ A simple and efficient web-based tool for sharing text and files across devices 
    - Frontend: [http://localhost:8080](http://localhost:8080)
    - Backend API: [http://localhost:3000](http://localhost:3000)
 
+## Security Features
+
+For secure deployment on the public internet, the following protections are integrated:
+
+- **Rate Limiting**: Rate limiting on the login endpoint and global API to prevent brute force attacks.
+- **Brute Force Delay**: Artificial delay in login verification to increase attack costs.
+- **Bcrypt Support**: Support for using Bcrypt hash values as passwords in environment variables.
+- **Access Audit Logs**: Automatically records the IP, request path, and status of all visitors. Logs are stored locally on the server (`server/logs/access.log`).
+
 ## Configuration
 
 You can customize the following environment variables in `docker-compose.yml`:
 
-- `APP_PASSWORD`: The password required to access the dashboard (Default: `admin123`).
-- `JWT_SECRET`: Secret key for authentication tokens.
+- `SHARED_PASSWORD`: The password required for access. Supports plaintext or Bcrypt hash (recommended).
+- `JWT_SECRET`: Secret key for authentication tokens. **Please make sure to change this.**
+
+### Generate a Secure Password Hash
+
+It is recommended to use a hash instead of plaintext:
+```bash
+node -e "console.log(require('bcryptjs').hashSync('your_password', 10))"
+```
+Put the resulting `$2a$...` string into `SHARED_PASSWORD`.
 
 ## Tech Stack
 
