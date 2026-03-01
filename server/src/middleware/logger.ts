@@ -31,16 +31,17 @@ export const accessLogger = (req: Request, res: Response, next: NextFunction) =>
   // Listen for the finish event to log the status code
   res.on('finish', () => {
     const duration = Date.now() - start;
-    const timestamp = new Date().toISOString();
+    const timestamp = formatTimestampUTC8(new Date());
     const method = req.method;
     const url = req.originalUrl;
     const status = res.statusCode;
     const userAgent = req.headers['user-agent'] || '-';
 
     void (async () => {
-      const location = await lookupLocation(ip);
-      const locationLabel = location ? ` (${location})` : '';
-      const logEntry = `[${timestamp}] ${ip}${locationLabel} - ${method} ${url} ${status} (${duration}ms) - ${userAgent}\n`;
+      const geoResult = await lookupLocation(ip);
+      const locationLabel = geoResult.location ? ` (${geoResult.location})` : '';
+      const geoErrorLabel = geoResult.error ? ` - geo_error=${geoResult.error}` : '';
+      const logEntry = `[${timestamp}] ${ip}${locationLabel} - ${method} ${url} ${status} (${duration}ms) - ${userAgent}${geoErrorLabel}\n`;
 
       try {
         fs.appendFileSync(logFile, logEntry);
@@ -74,15 +75,17 @@ const normalizeIp = (
   return raw;
 };
 
-const lookupLocation = async (ip: string): Promise<string | null> => {
+const lookupLocation = async (
+  ip: string
+): Promise<{ location: string | null; error: string | null }> => {
   if (!IPINFO_API_KEY || ip === 'unknown') {
-    return null;
+    return { location: null, error: null };
   }
 
   const now = Date.now();
   const cached = geoCache.get(ip);
   if (cached && cached.expiresAt > now) {
-    return cached.value;
+    return { location: cached.value, error: null };
   }
 
   const controller = new AbortController();
@@ -99,7 +102,7 @@ const lookupLocation = async (ip: string): Promise<string | null> => {
 
     if (!response.ok) {
       cacheLocation(ip, null);
-      return null;
+      return { location: null, error: `http_${response.status}` };
     }
 
     const data = (await response.json()) as {
@@ -118,10 +121,14 @@ const lookupLocation = async (ip: string): Promise<string | null> => {
 
     const label = parts.length > 0 ? parts.join('/') : null;
     cacheLocation(ip, label);
-    return label;
+    return { location: label, error: null };
   } catch (err) {
     cacheLocation(ip, null);
-    return null;
+    const isAbort =
+      err instanceof DOMException
+        ? err.name === 'AbortError'
+        : (err as { name?: string } | null)?.name === 'AbortError';
+    return { location: null, error: isAbort ? 'timeout' : 'fetch_error' };
   } finally {
     clearTimeout(timeout);
   }
@@ -129,4 +136,21 @@ const lookupLocation = async (ip: string): Promise<string | null> => {
 
 const cacheLocation = (ip: string, value: string | null) => {
   geoCache.set(ip, { value, expiresAt: Date.now() + GEO_CACHE_TTL_MS });
+};
+
+const formatTimestampUTC8 = (date: Date): string => {
+  const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
+  const utc8 = new Date(utcMs + 8 * 60 * 60 * 1000);
+
+  const pad = (value: number, len: number) => String(value).padStart(len, '0');
+
+  const y = utc8.getUTCFullYear();
+  const m = pad(utc8.getUTCMonth() + 1, 2);
+  const d = pad(utc8.getUTCDate(), 2);
+  const hh = pad(utc8.getUTCHours(), 2);
+  const mm = pad(utc8.getUTCMinutes(), 2);
+  const ss = pad(utc8.getUTCSeconds(), 2);
+  const ms = pad(utc8.getUTCMilliseconds(), 3);
+
+  return `${y}-${m}-${d}_${hh}:${mm}:${ss}.${ms}`;
 };
