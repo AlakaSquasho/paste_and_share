@@ -89,7 +89,7 @@ const lookupLocation = async (
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 1500);
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
   try {
     const response = await fetch(
