@@ -30,8 +30,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex h-screen items-center justify-center bg-sand dark:bg-night">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-ink/10 border-t-accent dark:border-white/10"></div>
       </div>
     );
   }

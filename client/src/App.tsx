@@ -48,105 +48,116 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 transition-colors duration-200 dark:bg-gray-900">
-      <nav className="bg-white shadow-sm transition-colors duration-200 dark:bg-gray-800 dark:border-gray-700">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 py-3 sm:h-16 sm:py-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex flex-shrink-0 items-center">
-                <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">{t('app_name')}</h1>
-              </div>
-              <div className="hidden sm:flex sm:space-x-8">
-                <button
-                  onClick={() => setActiveTab('clipboard')}
-                  className={`${
-                    activeTab === 'clipboard'
-                      ? 'border-indigo-500 text-gray-900 dark:text-white dark:border-indigo-400'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  } inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium transition-colors`}
-                >
-                  {t('dashboard.clipboard_tab')}
-                </button>
-                <button
-                  onClick={() => setActiveTab('files')}
-                  className={`${
-                    activeTab === 'files'
-                      ? 'border-indigo-500 text-gray-900 dark:text-white dark:border-indigo-400'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  } inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium transition-colors`}
-                >
-                  {t('dashboard.files_tab')}
-                </button>
-              </div>
-            </div>
-            <div className="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-4">
-              {/* Language Switcher */}
-              <select
-                onChange={(e) => changeLanguage(e.target.value)}
-                value={currentLanguage}
-                className="rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="en">English</option>
-                <option value="zh">中文</option>
-              </select>
-
-              <button
-                onClick={handleRefresh}
-                className="rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-                title={t('dashboard.refresh_button')}
-              >
-                <ArrowPathIcon className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => setTheme(nextTheme[theme])}
-                className="rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-                title={`${t('dashboard.theme_mode.' + theme)} mode`}
-              >
-                {themeIcons[theme]}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600 transition-colors sm:px-3 sm:py-2 sm:text-sm"
-              >
-                {t('dashboard.logout_button')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-      <div className="sm:hidden">
-        <div className="mx-auto max-w-7xl px-4 pt-2">
-          <div className="grid grid-cols-2 gap-2 rounded-lg bg-white p-2 shadow-sm dark:bg-gray-800 dark:ring-1 dark:ring-white/10">
-            <button
-              onClick={() => setActiveTab('clipboard')}
-              className={`${
-                activeTab === 'clipboard'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
-              } rounded-md px-3 py-2 text-sm font-semibold transition-colors`}
-            >
-              {t('dashboard.clipboard_tab')}
-            </button>
-            <button
-              onClick={() => setActiveTab('files')}
-              className={`${
-                activeTab === 'files'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
-              } rounded-md px-3 py-2 text-sm font-semibold transition-colors`}
-            >
-              {t('dashboard.files_tab')}
-            </button>
-          </div>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-sand text-ink transition-colors duration-200 dark:bg-night dark:text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 right-[-10%] h-72 w-72 rounded-full bg-accent/25 blur-3xl dark:bg-accent/10" />
+        <div className="absolute top-36 -left-20 h-64 w-64 rounded-full bg-ink/10 blur-3xl dark:bg-white/5" />
       </div>
 
-      <div className="py-10">
-        <main>
-          <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            {activeTab === 'clipboard' ? <ClipboardSection refreshKey={refreshKey} /> : <FileSection refreshKey={refreshKey} />}
+      <div className="relative">
+        <nav className="sticky top-4 z-30">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink/10 bg-white/80 px-4 py-3 shadow-soft backdrop-blur dark:border-white/10 dark:bg-night/70 sm:px-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-shrink-0 items-center">
+                  <h1 className="text-xl font-semibold text-ink dark:text-white">
+                    <span className="text-accent">•</span> {t('app_name')}
+                  </h1>
+                </div>
+                <div className="hidden sm:flex">
+                  <div className="flex rounded-lg bg-ink/5 p-1 dark:bg-white/10">
+                    <button
+                      onClick={() => setActiveTab('clipboard')}
+                      className={`${
+                        activeTab === 'clipboard'
+                          ? 'bg-accent text-ink'
+                          : 'text-coal hover:text-ink dark:text-gray-300 dark:hover:text-white'
+                      } rounded-md px-4 py-1.5 text-sm font-semibold transition-colors`}
+                    >
+                      {t('dashboard.clipboard_tab')}
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('files')}
+                      className={`${
+                        activeTab === 'files'
+                          ? 'bg-accent text-ink'
+                          : 'text-coal hover:text-ink dark:text-gray-300 dark:hover:text-white'
+                      } rounded-md px-4 py-1.5 text-sm font-semibold transition-colors`}
+                    >
+                      {t('dashboard.files_tab')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                <select
+                  onChange={(e) => changeLanguage(e.target.value)}
+                  value={currentLanguage}
+                  className="cursor-pointer rounded-md border border-ink/10 bg-white/80 px-3 py-1.5 text-sm font-medium text-ink shadow-sm transition-colors focus:border-accent focus:ring-accent/30 dark:border-white/10 dark:bg-night/60 dark:text-white"
+                >
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select>
+
+                <button
+                  onClick={handleRefresh}
+                  className="cursor-pointer rounded-md border border-ink/10 p-2 text-ink transition-colors hover:bg-ink/5 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                  title={t('dashboard.refresh_button')}
+                >
+                  <ArrowPathIcon className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setTheme(nextTheme[theme])}
+                  className="cursor-pointer rounded-md border border-ink/10 p-2 text-ink transition-colors hover:bg-ink/5 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/10"
+                  title={`${t('dashboard.theme_mode.' + theme)} mode`}
+                >
+                  {themeIcons[theme]}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="cursor-pointer rounded-md border border-ink/10 bg-white/80 px-3 py-1.5 text-xs font-semibold text-ink shadow-sm transition-colors hover:bg-ink/5 dark:border-white/10 dark:bg-night/60 dark:text-white dark:hover:bg-white/10 sm:px-4 sm:py-2 sm:text-sm"
+                >
+                  {t('dashboard.logout_button')}
+                </button>
+              </div>
+            </div>
           </div>
-        </main>
+        </nav>
+
+        <div className="sm:hidden">
+          <div className="mx-auto max-w-6xl px-4 pt-3">
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-ink/10 bg-white/80 p-2 shadow-soft dark:border-white/10 dark:bg-night/70">
+              <button
+                onClick={() => setActiveTab('clipboard')}
+                className={`${
+                  activeTab === 'clipboard'
+                    ? 'bg-accent text-ink'
+                    : 'bg-ink/5 text-coal dark:bg-white/10 dark:text-gray-200'
+                } rounded-md px-3 py-2 text-sm font-semibold transition-colors`}
+              >
+                {t('dashboard.clipboard_tab')}
+              </button>
+              <button
+                onClick={() => setActiveTab('files')}
+                className={`${
+                  activeTab === 'files'
+                    ? 'bg-accent text-ink'
+                    : 'bg-ink/5 text-coal dark:bg-white/10 dark:text-gray-200'
+                } rounded-md px-3 py-2 text-sm font-semibold transition-colors`}
+              >
+                {t('dashboard.files_tab')}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="py-10">
+          <main>
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              {activeTab === 'clipboard' ? <ClipboardSection refreshKey={refreshKey} /> : <FileSection refreshKey={refreshKey} />}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

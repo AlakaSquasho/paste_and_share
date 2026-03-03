@@ -10,3 +10,4 @@ server/uploads/
 server/logs/
 server/prisma/data/
 .DS_Store
+.codex

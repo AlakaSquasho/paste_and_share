@@ -28,44 +28,54 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white">
-          {t('login_page.title')}
-        </h2>
+    <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-sand px-6 py-12 transition-colors duration-200 dark:bg-night lg:px-8">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 right-[-10%] h-72 w-72 rounded-full bg-accent/25 blur-3xl dark:bg-accent/10" />
+        <div className="absolute bottom-12 -left-16 h-64 w-64 rounded-full bg-ink/10 blur-3xl dark:bg-white/5" />
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleLogin}>
-          <div>
-            <label htmlFor="password" university-data-label="password" className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">
-              {t('login_page.password_placeholder')}
-            </label>
-            <div className="mt-2">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 dark:focus:ring-indigo-500 transition-colors duration-200"
-                placeholder={t('login_page.password_placeholder')}
-              />
+      <div className="relative sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="rounded-xl border border-ink/10 bg-white/90 px-6 py-8 shadow-soft backdrop-blur dark:border-white/10 dark:bg-night/70">
+          <div className="text-center">
+            <div className="text-sm font-semibold uppercase tracking-[0.2em] text-coal/70 dark:text-gray-400">
+              {t('app_name')}
             </div>
+            <h2 className="mt-3 text-2xl font-semibold leading-8 text-ink dark:text-white">
+              {t('login_page.title')}
+            </h2>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 transition-colors"
-            >
-              {isLoading ? t('login_page.logging_in_button') : t('login_page.login_button')}
-            </button>
-          </div>
-        </form>
+          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+            <div>
+              <label htmlFor="password" university-data-label="password" className="block text-sm font-medium text-coal dark:text-gray-300">
+                {t('login_page.password_placeholder')}
+              </label>
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full rounded-md border-0 bg-white/80 px-3 py-2 text-ink shadow-sm ring-1 ring-inset ring-ink/10 placeholder:text-coal/60 focus:ring-2 focus:ring-inset focus:ring-accent/50 transition-colors duration-200 dark:bg-night/60 dark:text-white dark:ring-white/10 dark:placeholder:text-gray-500"
+                  placeholder={t('login_page.password_placeholder')}
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex w-full cursor-pointer justify-center rounded-md bg-accent px-3 py-2 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50"
+              >
+                {isLoading ? t('login_page.logging_in_button') : t('login_page.login_button')}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -117,16 +117,16 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
   const textareaValue = showImagePreview ? '' : content;
 
   return (
-    <div className="bg-white shadow sm:rounded-lg transition-colors duration-200 dark:bg-gray-800 dark:ring-1 dark:ring-white/10">
+    <div className="rounded-xl border border-ink/10 bg-white/90 shadow-soft backdrop-blur transition-colors duration-200 dark:border-white/10 dark:bg-night/70">
       <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">{t('clipboard_section.title')}</h3>
-        <div className="mt-2 max-w-xl text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="text-lg font-semibold leading-6 text-ink dark:text-white">{t('clipboard_section.title')}</h3>
+        <div className="mt-2 max-w-xl text-sm text-coal dark:text-gray-300">
           <p>{t('clipboard_section.description')}</p>
         </div>
         <div className="mt-5">
           <textarea
             rows={4}
-            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-colors duration-200 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:placeholder:text-gray-500 dark:focus:ring-indigo-500"
+            className="block w-full rounded-md border-0 bg-white/80 px-3 py-2 font-mono text-sm text-ink shadow-sm ring-1 ring-inset ring-ink/10 placeholder:text-coal/70 focus:ring-2 focus:ring-inset focus:ring-accent/50 transition-colors duration-200 dark:bg-night/60 dark:text-white dark:ring-white/10 dark:placeholder:text-gray-500"
             value={textareaValue}
             onChange={(e) => setContent(e.target.value)}
             onPaste={handlePaste}
@@ -134,8 +134,8 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
           />
         </div>
         {showImagePreview && (
-          <div className="mt-4 rounded-md border border-gray-200 p-3 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400">{t('clipboard_section.image_preview_label')}</div>
+          <div className="mt-4 rounded-lg border border-ink/10 bg-ink/5 p-3 dark:border-white/10 dark:bg-white/5">
+            <div className="text-xs text-coal dark:text-gray-300">{t('clipboard_section.image_preview_label')}</div>
             <img
               src={content}
               alt={t('clipboard_section.image_preview_alt')}
@@ -145,7 +145,7 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
               <button
                 type="button"
                 onClick={() => setContent('')}
-                className="text-xs font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                className="cursor-pointer text-xs font-semibold text-coal hover:text-ink dark:text-gray-300 dark:hover:text-white"
               >
                 {t('clipboard_section.clear_image_button')}
               </button>
@@ -156,21 +156,21 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
           <button
             type="button"
             onClick={handlePasteFromClipboard}
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-center text-sm font-semibold text-gray-900 transition-colors hover:text-gray-700 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:text-left"
+            className="w-full cursor-pointer rounded-md border border-ink/10 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-ink/5 dark:border-white/10 dark:bg-night/60 dark:text-gray-200 dark:hover:bg-white/10 sm:w-auto sm:px-4"
           >
             {t('clipboard_section.paste_from_clipboard_button')}
           </button>
           <button
             type="button"
             onClick={handleCopy}
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-center text-sm font-semibold text-gray-900 transition-colors hover:text-gray-700 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:text-left"
+            className="w-full cursor-pointer rounded-md border border-ink/10 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-ink/5 dark:border-white/10 dark:bg-night/60 dark:text-gray-200 dark:hover:bg-white/10 sm:w-auto sm:px-4"
           >
             {t('clipboard_section.copy_to_device_button')}
           </button>
           <button
             type="button"
             onClick={handleClearClipboard}
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-center text-sm font-semibold text-gray-900 transition-colors hover:text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white sm:w-auto sm:border-0 sm:px-0 sm:py-0 sm:text-left"
+            className="w-full cursor-pointer rounded-md border border-ink/10 bg-white/80 px-3 py-2 text-center text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-ink/5 disabled:opacity-50 dark:border-white/10 dark:bg-night/60 dark:text-gray-200 dark:hover:bg-white/10 sm:w-auto sm:px-4"
           >
             {t('clipboard_section.clear_clipboard_button')}
           </button>
@@ -178,7 +178,7 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
             type="button"
             onClick={handleUpdate}
             disabled={isLoading}
-            className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 sm:w-auto"
+            className="w-full cursor-pointer rounded-md bg-accent px-4 py-2 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 sm:w-auto"
           >
             {isLoading ? t('clipboard_section.saving_button') : t('clipboard_section.update_cloud_clipboard_button')}
           </button>
