@@ -56,8 +56,8 @@ function Dashboard() {
 
       <div className="relative">
         <nav className="sticky top-4 z-30">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink/10 bg-white/80 px-4 py-3 shadow-soft backdrop-blur dark:border-white/10 dark:bg-night/70 sm:px-6">
+          <div className="mx-auto mb-6 max-w-6xl px-4 sm:mb-0 sm:px-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink/10 bg-white/90 px-4 py-3 shadow-soft backdrop-blur dark:border-white/10 dark:bg-night/70 sm:px-6">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-shrink-0 items-center">
                   <h1 className="text-xl font-semibold text-ink dark:text-white">
@@ -125,8 +125,8 @@ function Dashboard() {
         </nav>
 
         <div className="sm:hidden">
-          <div className="mx-auto max-w-6xl px-4 pt-3">
-            <div className="grid grid-cols-2 gap-2 rounded-xl border border-ink/10 bg-white/80 p-2 shadow-soft dark:border-white/10 dark:bg-night/70">
+          <div className="mx-auto mb-3 max-w-6xl px-4">
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-ink/10 bg-white/90 p-2 shadow-soft dark:border-white/10 dark:bg-night/70">
               <button
                 onClick={() => setActiveTab('clipboard')}
                 className={`${
@@ -151,7 +151,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="py-10">
+        <div className="pb-10 pt-0 sm:py-10">
           <main>
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
               {activeTab === 'clipboard' ? <ClipboardSection refreshKey={refreshKey} /> : <FileSection refreshKey={refreshKey} />}
