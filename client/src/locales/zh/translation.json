@@ -19,13 +19,16 @@
     "image_preview_alt": "剪贴板图片预览",
     "clear_image_button": "清除图片",
     "copy_to_device_button": "复制到本地设备",
+    "paste_from_clipboard_button": "粘贴剪贴板",
+    "clear_clipboard_button": "清空输入框",
     "update_cloud_clipboard_button": "更新云剪贴板",
     "saving_button": "保存中...",
     "success_update": "剪贴板已更新",
     "error_update": "更新剪贴板失败",
     "success_copy": "已复制到本地剪贴板",
     "error_copy": "复制失败",
-    "error_fetch": "获取剪贴板失败"
+    "error_fetch": "获取剪贴板失败",
+    "error_paste": "读取剪贴板失败"
   },
   "file_section": {
     "drag_drop_text": "将文件拖放到此处，或单击以选择文件",

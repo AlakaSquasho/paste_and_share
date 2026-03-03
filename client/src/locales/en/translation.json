@@ -19,13 +19,16 @@
     "image_preview_alt": "Clipboard image preview",
     "clear_image_button": "Clear image",
     "copy_to_device_button": "Copy to device",
+    "paste_from_clipboard_button": "Paste from clipboard",
+    "clear_clipboard_button": "Clear input",
     "update_cloud_clipboard_button": "Update Cloud Clipboard",
     "saving_button": "Saving...",
     "success_update": "Clipboard updated",
     "error_update": "Failed to update clipboard",
     "success_copy": "Copied to local clipboard",
     "error_copy": "Failed to copy",
-    "error_fetch": "Failed to fetch clipboard"
+    "error_fetch": "Failed to fetch clipboard",
+    "error_paste": "Failed to read clipboard"
   },
   "file_section": {
     "drag_drop_text": "Drag & drop files here, or click to select files",

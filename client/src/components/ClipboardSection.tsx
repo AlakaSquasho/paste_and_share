@@ -60,6 +60,40 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
     }
   };
 
+  const readBlobAsDataUrl = (blob: Blob) =>
+    new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+      reader.readAsDataURL(blob);
+    });
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard.read) {
+        const items = await navigator.clipboard.read();
+        const imageItem = items.find((item) => item.types.some((type) => type.startsWith('image/')));
+        if (imageItem) {
+          const imageType = imageItem.types.find((type) => type.startsWith('image/')) || 'image/png';
+          const blob = await imageItem.getType(imageType);
+          const dataUrl = await readBlobAsDataUrl(blob);
+          if (dataUrl) {
+            setContent(dataUrl);
+            return;
+          }
+        }
+      }
+
+      const text = await navigator.clipboard.readText();
+      setContent(text);
+    } catch (err) {
+      toast.error(t('clipboard_section.error_paste'));
+    }
+  };
+
+  const handleClearClipboard = () => {
+    setContent('');
+  };
+
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const { items } = event.clipboardData;
     if (!items?.length) return;
@@ -119,6 +153,20 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
           </div>
         )}
         <div className="mt-3 flex items-center justify-end gap-x-6">
+          <button
+            type="button"
+            onClick={handlePasteFromClipboard}
+            className="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white transition-colors"
+          >
+            {t('clipboard_section.paste_from_clipboard_button')}
+          </button>
+          <button
+            type="button"
+            onClick={handleClearClipboard}
+            className="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white transition-colors disabled:opacity-50"
+          >
+            {t('clipboard_section.clear_clipboard_button')}
+          </button>
           <button
             type="button"
             onClick={handleCopy}
