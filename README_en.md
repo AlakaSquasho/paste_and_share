@@ -34,6 +34,24 @@ A simple and efficient web-based tool for sharing text and files across devices 
    - Frontend: [http://localhost:8080](http://localhost:8080)
    - Backend API: [http://localhost:3000](http://localhost:3000)
 
+## Public Nginx Reverse Proxy Template (with WebSocket)
+
+A ready-to-use reverse proxy template is included:
+
+- `nginx.reverse-proxy.template.conf`
+
+This template is for direct frontend/backend split routing at the public Nginx layer, and already includes WebSocket upgrade headers plus long connection timeouts. Routing flow:
+
+- Outer Nginx forwards `/` to `127.0.0.1:8080` (frontend)
+- Outer Nginx forwards `/api` and `/ws` to `127.0.0.1:3000` (backend)
+
+How to use:
+
+1. Replace `DOMAIN_NAME` in the template with your real domain.
+2. Add HTTPS certificate settings if needed (`listen 443 ssl`, cert paths, etc.).
+3. Ensure Docker port mapping matches `docker-compose.yml` (default `8080:80`).
+4. Reload Nginx.
+
 ## Security Features
 
 For secure deployment on the public internet, the following protections are integrated:

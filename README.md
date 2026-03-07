@@ -34,6 +34,24 @@
    - 前端界面：[http://localhost:8080](http://localhost:8080)
    - 后端 API：[http://localhost:3000](http://localhost:3000)
 
+## Nginx 公网反代模板（含 WebSocket）
+
+项目已提供可直接参考的反代模板：
+
+- `nginx.reverse-proxy.template.conf`
+
+该模板适用于“公网 Nginx 直接按前后端端口分流”的部署方式，并已包含 WebSocket 所需的升级头与长连接超时配置。其路由链路如下：
+
+- 外层 Nginx 将 `/` 转发到 `127.0.0.1:8080`（前端）
+- 外层 Nginx 将 `/api`、`/ws` 转发到 `127.0.0.1:3000`（后端）
+
+使用步骤：
+
+1. 将模板中的 `DOMAIN_NAME` 替换为你的域名。
+2. 按需添加 HTTPS 证书配置（`listen 443 ssl`、证书路径等）。
+3. 确保 Docker 映射端口与 `docker-compose.yml` 保持一致（默认 `8080:80`）。
+4. 重载 Nginx 配置。
+
 ## 安全特性
 
 为保障公网部署的安全性，本项目已集成以下防护措施：
