@@ -2,6 +2,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
+import { broadcastSyncEvent } from '../ws';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -32,7 +33,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const newEntry = await prisma.clipboard.create({
       data: { content },
     });
-    res.json(newEntry);
+    res.json({ id: newEntry.id, createdAt: newEntry.createdAt });
+    broadcastSyncEvent('clipboard_updated');
   } catch (error) {
     res.status(500).json({ error: 'Failed to update clipboard' });
   }

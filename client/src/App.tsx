@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage';
 import ClipboardSection from './components/ClipboardSection';
 import FileSection from './components/FileSection';
 import { useState, useCallback, useEffect } from 'react';
+import { connectWebSocket, disconnectWebSocket, subscribeSyncEvent } from './ws';
 import { useTheme, Theme } from './hooks/useTheme';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next'; // 引入 useTranslation
@@ -19,6 +20,22 @@ function Dashboard() {
 
   useEffect(() => {
     document.documentElement.lang = currentLanguage;
+  }, [currentLanguage]);
+
+  useEffect(() => {
+    connectWebSocket();
+    const unsubscribe = subscribeSyncEvent(() => {
+      setRefreshKey((prevKey) => prevKey + 1);
+    });
+
+    return () => {
+      unsubscribe();
+      disconnectWebSocket();
+    };
+  }, []);
+
+  useEffect(() => {
+    connectWebSocket();
   }, [currentLanguage]);
 
   const handleLogout = () => {

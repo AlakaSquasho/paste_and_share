@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
+import { broadcastSyncEvent } from '../ws';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -90,6 +91,7 @@ router.post('/upload', authenticate, (req: Request, res: Response, next: NextFun
         size: req.file.size,
       },
     });
+    broadcastSyncEvent('files_updated');
     res.json(newFile);
   } catch (error) {
     // Clean up file on error
@@ -140,6 +142,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
       if (err) console.error('Failed to delete file from disk:', err);
     });
 
+    broadcastSyncEvent('files_updated');
     res.json({ message: 'File deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete file' });

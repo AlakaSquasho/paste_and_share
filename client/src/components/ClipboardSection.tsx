@@ -39,8 +39,9 @@ export default function ClipboardSection({ refreshKey }: ClipboardSectionProps) 
     try {
       await api.post('/clipboard', { content });
       toast.success(t('clipboard_section.success_update'));
-    } catch (error) {
-      toast.error(t('clipboard_section.error_update'));
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error || error?.message || t('clipboard_section.error_update');
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
