@@ -14,7 +14,10 @@ function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'clipboard' | 'files'>('clipboard');
   const { theme, setTheme } = useTheme();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [clipboardRefreshKey, setClipboardRefreshKey] = useState(0);
+  const [filesRefreshKey, setFilesRefreshKey] = useState(0);
+  const [clipboardForceRefreshKey, setClipboardForceRefreshKey] = useState(0);
+  const [filesForceRefreshKey, setFilesForceRefreshKey] = useState(0);
   const { t, i18n } = useTranslation(); // 初始化 useTranslation
   const currentLanguage = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0];
 
@@ -24,8 +27,13 @@ function Dashboard() {
 
   useEffect(() => {
     connectWebSocket();
-    const unsubscribe = subscribeSyncEvent(() => {
-      setRefreshKey((prevKey) => prevKey + 1);
+    const unsubscribe = subscribeSyncEvent((event) => {
+      if (event.type === 'clipboard_updated') {
+        setClipboardRefreshKey((prevKey) => prevKey + 1);
+      }
+      if (event.type === 'files_updated') {
+        setFilesRefreshKey((prevKey) => prevKey + 1);
+      }
     });
 
     return () => {
@@ -44,7 +52,8 @@ function Dashboard() {
   };
 
   const handleRefresh = useCallback(() => {
-    setRefreshKey(prevKey => prevKey + 1);
+    setClipboardForceRefreshKey((prevKey) => prevKey + 1);
+    setFilesForceRefreshKey((prevKey) => prevKey + 1);
   }, []);
 
   // 添加语言切换功能
@@ -171,7 +180,11 @@ function Dashboard() {
         <div className="pb-10 pt-0 sm:py-10">
           <main>
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
-              {activeTab === 'clipboard' ? <ClipboardSection refreshKey={refreshKey} /> : <FileSection refreshKey={refreshKey} />}
+              {activeTab === 'clipboard' ? (
+                <ClipboardSection refreshKey={clipboardRefreshKey} forceRefreshKey={clipboardForceRefreshKey} />
+              ) : (
+                <FileSection refreshKey={filesRefreshKey + filesForceRefreshKey} />
+              )}
             </div>
           </main>
         </div>

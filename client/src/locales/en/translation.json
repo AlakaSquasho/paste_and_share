@@ -28,7 +28,13 @@
     "success_copy": "Copied to local clipboard",
     "error_copy": "Failed to copy",
     "error_fetch": "Failed to fetch clipboard",
-    "error_paste": "Failed to read clipboard"
+    "error_paste": "Failed to read clipboard",
+    "uploading_image_button": "Uploading image...",
+    "loading_image_preview": "Loading image preview...",
+    "error_image_upload": "Failed to upload image",
+    "error_image_load": "Failed to load image preview",
+    "legacy_image_repaste_hint": "This image was saved in the old format. Please paste it again.",
+    "error_unsupported_payload": "Clipboard content type is not supported"
   },
   "file_section": {
     "drag_drop_text": "Drag & drop files here, or click to select files",

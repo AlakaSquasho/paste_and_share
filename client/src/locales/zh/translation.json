@@ -28,7 +28,13 @@
     "success_copy": "已复制到本地剪贴板",
     "error_copy": "复制失败",
     "error_fetch": "获取剪贴板失败",
-    "error_paste": "读取剪贴板失败"
+    "error_paste": "读取剪贴板失败",
+    "uploading_image_button": "图片上传中...",
+    "loading_image_preview": "图片加载中...",
+    "error_image_upload": "图片上传失败",
+    "error_image_load": "图片加载失败",
+    "legacy_image_repaste_hint": "该图片使用旧格式保存，请重新粘贴一次。",
+    "error_unsupported_payload": "不支持的剪贴板内容类型"
   },
   "file_section": {
     "drag_drop_text": "将文件拖放到此处，或单击以选择文件",
