@@ -60,6 +60,7 @@
     "password_placeholder": "Password",
     "login_button": "Login",
     "logging_in_button": "Logging in...",
-    "error_invalid_password": "Invalid password or too many attempts. Please try again."
+    "error_invalid_password": "Invalid password or too many attempts. Please try again.",
+    "success_login": "Login successful"
   }
 }

@@ -18,7 +18,7 @@ export default function LoginPage() {
     try {
       const { data } = await axios.post('/api/auth/login', { password });
       localStorage.setItem('token', data.token);
-      toast.success('Login successful!'); // 这里可以考虑翻译 "Login successful!"
+      toast.success(t('login_page.success_login'));
       navigate('/');
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('login_page.error_invalid_password'));
