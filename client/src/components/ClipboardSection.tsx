@@ -299,6 +299,9 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
     }));
 
     try {
+      if (modelRef.current.remote.kind === 'image') {
+        await api.delete('/clipboard/image');
+      }
       await api.post('/clipboard', payload);
       if (saveOpIdRef.current !== opId) return;
 
