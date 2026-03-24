@@ -10,6 +10,7 @@ import { accessLogger } from './middleware/logger';
 // Import routes
 import authRoutes from './routes/auth';
 import clipboardRoutes from './routes/clipboard';
+import clipboardImageRoutes from './routes/clipboardImage';
 import filesRoutes from './routes/files';
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api', globalLimiter); // Apply to all API routes
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/clipboard/image', clipboardImageRoutes);
 app.use('/api/clipboard', clipboardRoutes);
 app.use('/api/files', filesRoutes);
 

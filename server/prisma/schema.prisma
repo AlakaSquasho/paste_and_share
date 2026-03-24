@@ -15,6 +15,15 @@ model Clipboard {
   createdAt DateTime @default(now())
 }
 
+model ClipboardImage {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimetype     String
+  size         Int
+  createdAt    DateTime @default(now())
+}
+
 model FileMetadata {
   id          String   @id @default(cuid())
   originalName String

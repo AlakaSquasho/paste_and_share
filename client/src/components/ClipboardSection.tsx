@@ -8,18 +8,17 @@ interface ClipboardSectionProps {
   forceRefreshKey: number;
 }
 
-interface ClipboardImageRef {
-  fileId: string;
+interface ClipboardImageInfo {
   mimetype: string;
   size: number;
   originalName: string;
 }
 
-interface UploadFileMetadata {
+interface UploadImageResponse {
   id: string;
-  originalName: string;
   mimetype: string;
   size: number;
+  originalName: string;
 }
 
 interface ClipboardTextPayload {
@@ -28,34 +27,13 @@ interface ClipboardTextPayload {
   text: string;
 }
 
-interface ClipboardImagePayload {
-  version: 2;
-  type: 'image';
-  image: ClipboardImageRef;
-}
-
-type ClipboardPayload = ClipboardTextPayload | ClipboardImagePayload;
-
 type ClipboardDraft =
-  | {
-      kind: 'text';
-      text: string;
-    }
-  | {
-      kind: 'image';
-      previewUrl: string | null;
-      imageRef: ClipboardImageRef | null;
-    };
+  | { kind: 'text'; text: string }
+  | { kind: 'image'; previewUrl: string | null; imageInfo: ClipboardImageInfo | null; pendingBlob: Blob | null };
 
 type ClipboardRemote =
-  | {
-      kind: 'text';
-      text: string;
-    }
-  | {
-      kind: 'image';
-      imageRef: ClipboardImageRef;
-    };
+  | { kind: 'text'; text: string }
+  | { kind: 'image'; imageInfo: ClipboardImageInfo };
 
 type ClipboardStatus = 'idle' | 'uploading' | 'saving' | 'error';
 
@@ -77,82 +55,22 @@ const isObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
 
-const isClipboardImageRef = (value: unknown): value is ClipboardImageRef => {
-  if (!isObject(value)) return false;
-  return (
-    typeof value.fileId === 'string' &&
-    typeof value.mimetype === 'string' &&
-    typeof value.size === 'number' &&
-    typeof value.originalName === 'string'
-  );
-};
-
-const toRemotePayload = (payload: ClipboardPayload): ClipboardRemote => {
-  if (payload.type === 'image') {
-    return {
-      kind: 'image',
-      imageRef: payload.image,
-    };
-  }
-
-  return {
-    kind: 'text',
-    text: payload.text,
-  };
-};
-
-const toDraftPayload = (draft: ClipboardDraft): ClipboardPayload | null => {
-  if (draft.kind === 'image') {
-    if (!draft.imageRef) return null;
-    return {
-      version: 2,
-      type: 'image',
-      image: draft.imageRef,
-    };
-  }
-
-  return {
-    version: 2,
-    type: 'text',
-    text: draft.text,
-  };
-};
-
-const parseClipboardPayload = (rawPayload: unknown): ClipboardPayload | null => {
+const parseTextPayload = (rawPayload: unknown): ClipboardTextPayload | null => {
   if (!isObject(rawPayload) || rawPayload.version !== 2) return null;
-
   if (rawPayload.type === 'text' && typeof rawPayload.text === 'string') {
-    return {
-      version: 2,
-      type: 'text',
-      text: rawPayload.text,
-    };
+    return { version: 2, type: 'text', text: rawPayload.text as string };
   }
-
-  if (rawPayload.type === 'image' && isClipboardImageRef(rawPayload.image)) {
-    return {
-      version: 2,
-      type: 'image',
-      image: rawPayload.image,
-    };
-  }
-
   return null;
 };
 
-const fetchBlobByFileId = async (fileId: string) => {
-  const response = await api.get(`/files/${fileId}`, { responseType: 'blob' });
+const fetchClipboardImageBlob = async () => {
+  const response = await api.get('/clipboard/image', { responseType: 'blob' });
   return response.data as Blob;
 };
 
 const createUploadFile = (file: Blob) => {
-  if (file instanceof File) {
-    return file;
-  }
-
-  return new File([file], `clipboard-${Date.now()}.png`, {
-    type: file.type || 'image/png',
-  });
+  if (file instanceof File) return file;
+  return new File([file], `clipboard-${Date.now()}.png`, { type: file.type || 'image/png' });
 };
 
 export default function ClipboardSection({ refreshKey, forceRefreshKey }: ClipboardSectionProps) {
@@ -173,7 +91,6 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
   const uploadOpIdRef = useRef(0);
   const fetchOpIdRef = useRef(0);
   const saveOpIdRef = useRef(0);
-  const { t } = useTranslation();
 
   useEffect(() => {
     modelRef.current = model;
@@ -208,6 +125,8 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
     lastTextRef.current = draftText;
   }, [draftText]);
 
+  const { t } = useTranslation();
+
   const nextOpId = useCallback(() => {
     opCounterRef.current += 1;
     const opId = opCounterRef.current;
@@ -215,66 +134,58 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
     return opId;
   }, []);
 
-  const applyRemotePayload = useCallback(
-    async (payload: ClipboardPayload, opId: number) => {
-      const remote = toRemotePayload(payload);
+  const applyRemoteData = useCallback(
+    async (
+      payload: ClipboardTextPayload | null,
+      hasImage: boolean,
+      imageInfo: ClipboardImageInfo | null,
+      opId: number,
+    ) => {
       const currentModel = modelRef.current;
 
       if (currentModel.dirty) {
         setModel((prev) => ({
           ...prev,
-          remote,
+          remote: hasImage && imageInfo ? { kind: 'image', imageInfo } : { kind: 'text', text: payload?.text ?? '' },
         }));
         return;
       }
 
-      if (payload.type === 'text') {
-        if (fetchOpIdRef.current !== opId) return;
-        setModel((prev) => ({
-          ...prev,
-          draft: { kind: 'text', text: payload.text },
-          remote,
-          dirty: false,
-          status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-        }));
-        return;
-      }
-
-      try {
-        const blob = await fetchBlobByFileId(payload.image.fileId);
-        if (fetchOpIdRef.current !== opId) return;
-        const previewUrl = URL.createObjectURL(blob);
-        if (fetchOpIdRef.current !== opId) {
-          URL.revokeObjectURL(previewUrl);
-          return;
+      if (hasImage && imageInfo) {
+        try {
+          const blob = await fetchClipboardImageBlob();
+          if (fetchOpIdRef.current !== opId) return;
+          const previewUrl = URL.createObjectURL(blob);
+          setModel((prev) => ({
+            ...prev,
+            draft: { kind: 'image', previewUrl, imageInfo, pendingBlob: null },
+            remote: { kind: 'image', imageInfo },
+            dirty: false,
+            status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
+          }));
+        } catch {
+          if (fetchOpIdRef.current !== opId) return;
+          setModel((prev) => ({
+            ...prev,
+            draft: { kind: 'image', previewUrl: null, imageInfo, pendingBlob: null },
+            remote: { kind: 'image', imageInfo },
+            dirty: false,
+            status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
+          }));
+          toast.error(t('clipboard_section.error_image_load'));
         }
-
-        setModel((prev) => ({
-          ...prev,
-          draft: {
-            kind: 'image',
-            previewUrl,
-            imageRef: payload.image,
-          },
-          remote,
-          dirty: false,
-          status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-        }));
-      } catch {
-        if (fetchOpIdRef.current !== opId) return;
-        setModel((prev) => ({
-          ...prev,
-          draft: {
-            kind: 'image',
-            previewUrl: null,
-            imageRef: payload.image,
-          },
-          remote,
-          dirty: false,
-          status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-        }));
-        toast.error(t('clipboard_section.error_image_load'));
+        return;
       }
+
+      const text = payload?.text ?? '';
+      if (fetchOpIdRef.current !== opId) return;
+      setModel((prev) => ({
+        ...prev,
+        draft: { kind: 'text', text },
+        remote: { kind: 'text', text },
+        dirty: false,
+        status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
+      }));
     },
     [t]
   );
@@ -291,64 +202,12 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
         const { data } = await api.get('/clipboard');
         if (fetchOpIdRef.current !== opId) return;
 
-        const payload = parseClipboardPayload(data?.payload);
-        if (!payload) {
-          toast.error(t('clipboard_section.error_unsupported_payload'));
-          return;
-        }
+        const { payload: rawPayload, hasImage, imageInfo } = data;
 
-        if (forceApplyDraft) {
-          const remote = toRemotePayload(payload);
-          if (payload.type === 'text') {
-            setModel((prev) => ({
-              ...prev,
-              draft: { kind: 'text', text: payload.text },
-              remote,
-              dirty: false,
-              status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-            }));
-            return;
-          }
+        if (!forceApplyDraft && modelRef.current.dirty) return;
 
-          try {
-            const blob = await fetchBlobByFileId(payload.image.fileId);
-            if (fetchOpIdRef.current !== opId) return;
-            const previewUrl = URL.createObjectURL(blob);
-            if (fetchOpIdRef.current !== opId) {
-              URL.revokeObjectURL(previewUrl);
-              return;
-            }
-
-            setModel((prev) => ({
-              ...prev,
-              draft: {
-                kind: 'image',
-                previewUrl,
-                imageRef: payload.image,
-              },
-              remote,
-              dirty: false,
-              status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-            }));
-          } catch {
-            if (fetchOpIdRef.current !== opId) return;
-            setModel((prev) => ({
-              ...prev,
-              draft: {
-                kind: 'image',
-                previewUrl: null,
-                imageRef: payload.image,
-              },
-              remote,
-              dirty: false,
-              status: prev.status === 'saving' || prev.status === 'uploading' ? prev.status : 'idle',
-            }));
-            toast.error(t('clipboard_section.error_image_load'));
-          }
-          return;
-        }
-
-        await applyRemotePayload(payload, opId);
+        const payload = parseTextPayload(rawPayload);
+        await applyRemoteData(payload, !!hasImage, imageInfo ?? null, opId);
       } catch (error: any) {
         if (fetchOpIdRef.current !== opId) return;
         if (error.response?.status !== 401 && error.response?.status !== 403) {
@@ -356,7 +215,7 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
         }
       }
     },
-    [applyRemotePayload, nextOpId, t]
+    [applyRemoteData, nextOpId, t]
   );
 
   useEffect(() => {
@@ -370,63 +229,66 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
 
   const uploadClipboardImage = useCallback(
     async (blob: Blob, previewUrl: string) => {
-      const opId = nextOpId();
-      uploadOpIdRef.current = opId;
-
       setModel((prev) => ({
         ...prev,
-        draft: {
-          kind: 'image',
-          previewUrl,
-          imageRef: null,
-        },
+        draft: { kind: 'image', previewUrl, imageInfo: null, pendingBlob: blob },
         dirty: true,
-        status: 'uploading',
+        status: 'idle',
       }));
-
-      try {
-        const uploadFile = createUploadFile(blob);
-        const formData = new FormData();
-        formData.append('file', uploadFile);
-        const { data } = await api.post<UploadFileMetadata>('/files/upload', formData);
-
-        if (uploadOpIdRef.current !== opId) return;
-
-        setModel((prev) => {
-          if (prev.draft.kind !== 'image') return prev;
-
-          return {
-            ...prev,
-            draft: {
-              kind: 'image',
-              previewUrl: prev.draft.previewUrl,
-              imageRef: {
-                fileId: data.id,
-                mimetype: data.mimetype,
-                size: data.size,
-                originalName: data.originalName,
-              },
-            },
-            dirty: true,
-            status: 'idle',
-          };
-        });
-      } catch (error: any) {
-        if (uploadOpIdRef.current !== opId) return;
-        setModel((prev) => ({ ...prev, status: 'error' }));
-        const errorMessage = error?.response?.data?.error || error?.message || t('clipboard_section.error_image_upload');
-        toast.error(errorMessage);
-      }
     },
-    [nextOpId, t]
+    []
   );
 
   const handleUpdate = async () => {
-    const payload = toDraftPayload(modelRef.current.draft);
-    if (!payload) {
-      toast.error(t('clipboard_section.error_image_upload'));
+    const draft = modelRef.current.draft;
+
+    if (draft.kind === 'image') {
+      if (!draft.pendingBlob && !draft.imageInfo) {
+        toast.error(t('clipboard_section.error_image_upload'));
+        return;
+      }
+
+      if (draft.pendingBlob) {
+        const opId = nextOpId();
+        uploadOpIdRef.current = opId;
+        setModel((prev) => ({ ...prev, status: 'uploading' }));
+
+        try {
+          const uploadFile = createUploadFile(draft.pendingBlob);
+          const formData = new FormData();
+          formData.append('file', uploadFile);
+          const { data } = await api.put<UploadImageResponse>('/clipboard/image', formData);
+
+          if (uploadOpIdRef.current !== opId) return;
+
+          const imageInfo: ClipboardImageInfo = {
+            mimetype: data.mimetype,
+            size: data.size,
+            originalName: data.originalName,
+          };
+
+          setModel((prev) => {
+            if (prev.draft.kind !== 'image') return prev;
+            return {
+              ...prev,
+              draft: { kind: 'image', previewUrl: prev.draft.previewUrl, imageInfo, pendingBlob: null },
+              remote: { kind: 'image', imageInfo },
+              dirty: false,
+              status: 'idle',
+            };
+          });
+          toast.success(t('clipboard_section.success_update'));
+        } catch (error: any) {
+          if (uploadOpIdRef.current !== opId) return;
+          setModel((prev) => ({ ...prev, status: 'error' }));
+          const errorMessage = error?.response?.data?.error || error?.message || t('clipboard_section.error_image_upload');
+          toast.error(errorMessage);
+        }
+      }
       return;
     }
+
+    const payload: ClipboardTextPayload = { version: 2, type: 'text', text: draft.text };
 
     const opId = nextOpId();
     saveOpIdRef.current = opId;
@@ -440,21 +302,12 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
       await api.post('/clipboard', payload);
       if (saveOpIdRef.current !== opId) return;
 
-      setModel((prev) => {
-        const remote = toRemotePayload(payload);
-        const draft = prev.draft;
-
-        if (draft.kind === 'image' && !draft.imageRef && payload.type === 'image') {
-          draft.imageRef = payload.image;
-        }
-
-        return {
-          ...prev,
-          remote,
-          dirty: false,
-          status: 'idle',
-        };
-      });
+      setModel((prev) => ({
+        ...prev,
+        remote: { kind: 'text', text: draft.text },
+        dirty: false,
+        status: 'idle',
+      }));
       toast.success(t('clipboard_section.success_update'));
     } catch (error: any) {
       if (saveOpIdRef.current !== opId) return;
@@ -468,19 +321,16 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
     try {
       if (modelRef.current.draft.kind === 'image') {
         let blob: Blob;
-        const { previewUrl, imageRef } = modelRef.current.draft;
+        const { previewUrl } = modelRef.current.draft;
 
         if (previewUrl) {
           const response = await fetch(previewUrl);
           blob = await response.blob();
-        } else if (imageRef) {
-          blob = await fetchBlobByFileId(imageRef.fileId);
         } else {
-          toast.error(t('clipboard_section.error_copy'));
-          return;
+          blob = await fetchClipboardImageBlob();
         }
 
-        const mimeType = blob.type || imageRef?.mimetype || 'image/png';
+        const mimeType = blob.type || 'image/png';
         await navigator.clipboard.write([new ClipboardItem({ [mimeType]: blob })]);
       } else {
         await navigator.clipboard.writeText(modelRef.current.draft.text);
@@ -526,11 +376,11 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
     }
   };
 
-  const handleClearClipboard = () => {
+  const handleClearClipboard = async () => {
     setModel((prev) => ({
       ...prev,
       draft: { kind: 'text', text: '' },
-      dirty: true,
+      dirty: false,
       status: 'idle',
     }));
   };
@@ -591,14 +441,7 @@ export default function ClipboardSection({ refreshKey, forceRefreshKey }: Clipbo
             <div className="mt-3 flex justify-end">
               <button
                 type="button"
-                onClick={() =>
-                  setModel((prev) => ({
-                    ...prev,
-                    draft: { kind: 'text', text: '' },
-                    dirty: true,
-                    status: 'idle',
-                  }))
-                }
+                onClick={handleClearClipboard}
                 className="cursor-pointer text-xs font-semibold text-coal hover:text-ink dark:text-gray-300 dark:hover:text-white"
               >
                 {t('clipboard_section.clear_image_button')}
