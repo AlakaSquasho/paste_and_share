@@ -45,6 +45,9 @@
     "table_header_uploaded": "上传时间",
     "no_files_uploaded": "尚未上传文件。",
     "download_button": "下载",
+    "preview_button": "预览",
+    "hide_preview_button": "隐藏预览",
+    "preview_loading": "加载中...",
     "delete_button": "删除",
     "confirm_delete": "您确定要删除此文件吗？",
     "success_upload": "文件上传成功",
@@ -53,6 +56,7 @@
     "error_download": "下载失败",
     "success_delete": "文件已删除",
     "error_delete": "删除文件失败",
+    "error_preview": "加载预览失败",
     "error_fetch_list": "获取文件列表失败"
   },
   "login_page": {
